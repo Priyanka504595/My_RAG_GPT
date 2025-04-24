@@ -116,6 +116,8 @@ streamlit run chatbot_withAPI.py
 ---
 
 ## Conclusion
+
 NeuroRAG is a powerful RAG-based chatbot system built with flexibility, privacy, and real-world use in mind. It offers both local and cloud model inference, and is ideal for research, internal tools, and advanced AI demonstrations.
+
 ---
 
