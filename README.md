@@ -1,5 +1,11 @@
 # NeuroRAG: A Retrieval-Augmented Generation Chatbot for Private and API-Based Document Querying
 
+Welcome to **NeuroRAG**, a full-stack, production-ready chatbot powered by LangChain, Streamlit, and both **OpenAI API** and **local Ollama models**. It allows users to chat with their private files (PDF, TXT, MD, CSV, XLSX) using RAG (Retrieval-Augmented Generation) for context-rich answers. Logs are saved per user and automatically pushed to GitHub.
+
+🔗 Live App: [https://neuro-rag-aibot.streamlit.app/](https://neuro-rag-aibot.streamlit.app/)
+
+---
+
 ## Project Overview
 **NeuroRAG** is an end-to-end Retrieval-Augmented Generation (RAG) application that enables natural language interaction with documents such as `.pdf`, `.txt`, `.md`, `.csv`, and `.xlsx`. The project supports both **local inference using Ollama** (for privacy) and **cloud-based inference using Hugging Face and OpenAI APIs** (for deployability).
 
@@ -18,7 +24,7 @@ It is built using:
 - API-based inference using Hugging Face and OpenAI models
 - RAG workflow with semantic search and document chunking
 - Per-user session-based chat logging (CSV export)
-- Streamlit UI with memory-based chat experience
+- Streamlit UI with memory-based chat experience(Live URL)
 
 ---
 
@@ -94,14 +100,14 @@ streamlit run chatbot_withAPI.py
 ---
 
 ## Testing, Errors & Debugging
-- Hugging Face model tasks often returned `task not supported` → switched models
+- Testing different models
 - Hugging Face inference caused long delays and errors due to free tier limits
 - OpenAI usage restricted by rate limits and billing constraints
 - Resolved by integrating Ollama for **local inference**
 - Unicode errors from `.txt` files fixed by specifying UTF-8 encoding
 - Reduced `max_length` to speed up long outputs
 - Tested different `k` values (number of documents retrieved)
-- Refined chunk size in `RecursiveCharacterTextSplitter`
+- Refined chunk size 
 
 ---
 
@@ -112,6 +118,9 @@ streamlit run chatbot_withAPI.py
 - Setting up Ollama for running LLMs locally
 - Creating a clean, memory-retaining UI in Streamlit
 - Logging user conversations for tracking
+- GitPython automation
+- Model comparisons: local vs API
+- Cost-conscious deployment strategies
 
 ---
 
