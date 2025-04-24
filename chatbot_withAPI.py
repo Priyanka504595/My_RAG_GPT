@@ -1,9 +1,9 @@
 import os
+import re
 import streamlit as st
 import datetime
 import csv
 from dotenv import load_dotenv, find_dotenv
-from git import Repo
 from langchain_openai import ChatOpenAI
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -13,15 +13,13 @@ from langchain_core.prompts import PromptTemplate
 # Load environment variables
 load_dotenv(find_dotenv())
 
-# Paths
 DB_FAISS_PATH = "vectorstore/db_faiss"
-REPO_PATH = os.getcwd()
-BRANCH_NAME = "mysecondbranch"
 
 @st.cache_resource
 def get_vectorstore():
     embedding_model = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
-    return FAISS.load_local(DB_FAISS_PATH, embedding_model, allow_dangerous_deserialization=True)
+    db = FAISS.load_local(DB_FAISS_PATH, embedding_model, allow_dangerous_deserialization=True)
+    return db
 
 def set_custom_prompt():
     custom_template = """
@@ -41,29 +39,15 @@ def load_llm():
 def log_chat(name, question, answer, sources):
     os.makedirs("logs", exist_ok=True)
     filename = f"logs/chat_{name}_{datetime.date.today()}.csv"
-
     source_files = "; ".join([
         f"{os.path.basename(doc.metadata.get('source', ''))} (Page {doc.metadata.get('page', 'N/A')})"
         for doc in sources
     ])
-
     with open(filename, mode="a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         timestamp = datetime.datetime.now().isoformat()
         combined_text = f"Q: {question}\nA: {answer}"
         writer.writerow([name, timestamp, combined_text, source_files])
-
-    # Automatically push logs to GitHub
-    try:
-        GITHUB_TOKEN = st.secrets["github"]["token"]
-        repo = Repo(REPO_PATH)
-        repo.git.add(filename)
-        repo.index.commit(f"Update chat log for {name} on {datetime.date.today()}")
-        origin = repo.remote(name="origin")
-        origin.set_url(f"https://{GITHUB_TOKEN}@github.com/Priyanka504595/My_RAG_GPT.git")
-        origin.push(BRANCH_NAME)
-    except Exception as e:
-        print(f"Git push failed: {str(e)}")
 
 def main():
     st.set_page_config(page_title="NeuroRAG (OpenAI Version)", page_icon="🧠")
@@ -73,10 +57,11 @@ def main():
         st.session_state.messages = []
 
     if 'username' not in st.session_state:
-        st.session_state.username = st.text_input("Enter your name to begin:")
-        if not st.session_state.username.strip():
-            st.warning("Please enter your name above to begin chatting.")
-            st.stop()
+        st.session_state.username = ""
+    st.session_state.username = st.text_input("Enter your name to begin:")
+    if not st.session_state.username.strip():
+        st.warning("Please enter your name above to begin chatting.")
+        st.stop()
 
     for message in st.session_state.messages:
         st.chat_message(message['role']).markdown(message['content'])
@@ -101,10 +86,7 @@ def main():
             result = response["result"]
             source_documents = response["source_documents"]
 
-            if any(x in result.lower() for x in [
-                "context does not provide any information", "I cannot answer",
-                "no information", "I don't have that information", "I don't know"
-            ]):
+            if any(x in result.lower() for x in ["context does not provide any information", "I cannot answer", "no information", "not sure", "not found"]):
                 result_to_show = result
             else:
                 sources = "\n".join([
@@ -116,7 +98,7 @@ def main():
             st.chat_message('assistant').markdown(result_to_show)
             st.session_state.messages.append({'role': 'assistant', 'content': result_to_show})
 
-            # Save and push logs
+            # Log chat
             log_chat(st.session_state.username, prompt, result, source_documents)
 
         except Exception as e:
