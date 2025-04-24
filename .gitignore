@@ -3,12 +3,27 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Ignore Python environment and cache
+venv/
+__pycache__/
+*.pyc
+
+# Ignore secrets and local data
+.env
+logs/
+vectorstore/
+
+# Ignore system files
+.DS_Store
+
+
 # User-specific files
 *.rsuser
 *.suo
 *.user
 *.userosscache
 *.sln.docstates
+
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
