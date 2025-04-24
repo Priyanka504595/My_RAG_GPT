@@ -49,7 +49,7 @@ cd MY_RAG_GPT
 ### ➤ 2. Create a virtual environment and install requirements
 ```bash
 python -m venv venv
-source venv/bin/activate   # Windows: venv\Scriptsctivate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -83,9 +83,9 @@ streamlit run chatbot_withAPI.py
 - `mistral`
 
 ### Hugging Face API
-- `tiiuae/falcon-rw-1b`
+- `mistral`
 - `google/flan-t5-base`
-- `declare-lab/flan-alpaca-base`
+- `and others..`
 
 ### OpenAI API
 - `gpt-3.5-turbo`
@@ -117,6 +117,5 @@ streamlit run chatbot_withAPI.py
 
 ## Conclusion
 NeuroRAG is a powerful RAG-based chatbot system built with flexibility, privacy, and real-world use in mind. It offers both local and cloud model inference, and is ideal for research, internal tools, and advanced AI demonstrations.
-
 ---
 
