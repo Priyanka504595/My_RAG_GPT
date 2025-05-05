@@ -9,15 +9,13 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains import RetrievalQA
 from langchain_core.prompts import PromptTemplate
-from git import Repo
 
 # Load environment variables
 load_dotenv(find_dotenv())
 
 DB_FAISS_PATH = "vectorstore/db_faiss"
-REPO_PATH = os.getcwd()
-BRANCH_NAME = "mysecondbranch"
 
+@st.cache_resource
 def get_vectorstore():
     embedding_model = HuggingFaceEmbeddings(model_name='sentence-transformers/all-MiniLM-L6-v2')
     db = FAISS.load_local(DB_FAISS_PATH, embedding_model, allow_dangerous_deserialization=True)
@@ -50,15 +48,6 @@ def log_chat(name, question, answer, sources):
         timestamp = datetime.datetime.now().isoformat()
         combined_text = f"Q: {question}\nA: {answer}"
         writer.writerow([name, timestamp, combined_text, source_files])
-
-    try:
-        repo = Repo(REPO_PATH)
-        repo.git.add(filename)
-        repo.index.commit(f"Update chat log for {name} on {datetime.date.today()}")
-        origin = repo.remote(name="origin")
-        origin.push(BRANCH_NAME)
-    except Exception as e:
-        print(f"Git push failed: {str(e)}")
 
 def main():
     st.set_page_config(page_title="NeuroRAG (OpenAI Version)", page_icon="🧠")
@@ -97,7 +86,7 @@ def main():
             result = response["result"]
             source_documents = response["source_documents"]
 
-            if any(x in result.lower() for x in ["context does not provide any information", "I cannot answer", "no information", "I don't have that information","I don't know"]):
+            if any(x in result.lower() for x in ["context does not provide any information", "I cannot answer", "no information", "not sure", "not found"]):
                 result_to_show = result
             else:
                 sources = "\n".join([
@@ -109,7 +98,7 @@ def main():
             st.chat_message('assistant').markdown(result_to_show)
             st.session_state.messages.append({'role': 'assistant', 'content': result_to_show})
 
-            # Log and push chat
+            # Log chat
             log_chat(st.session_state.username, prompt, result, source_documents)
 
         except Exception as e:
